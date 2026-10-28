@@ -4,7 +4,7 @@ title: '#4471 split: one ticket per problem'
 owner: support desk
 status: open
 reviewed: 2026-10-28
-signature: 'Piotr Smoczyk'
+signature: 'v1.eyJzdWIiOiIyODUwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMxOTkwOTUsImV4cCI6MTc5MzI4NTQ5NX0.Kr3ajUvjq467tR3LTLkWIQuLN2hAe5w4vAUgQSvZlWk'
 ---
 
 <script>
