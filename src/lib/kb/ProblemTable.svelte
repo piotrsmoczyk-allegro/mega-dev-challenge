@@ -2,15 +2,14 @@
   import reports from '#lib/data/reports-4471.json';
   import notes from '#lib/data/desk-notes.json';
   import { uniqueById, type Report } from '#lib/kb/causes';
-  import { groupByProblem } from '#lib/kb/problems';
+  import { problemRows } from '#lib/kb/problems';
   import { tenantOf } from '#lib/kb/locales';
 
   // `filed`: problem → URL of the ticket filed for it. A problem with no entry has no ticket yet.
   let { ticket, filed = {} }: { ticket: number; filed?: Record<string, string> } = $props();
 
   const merged = $derived(uniqueById(reports as Report[]).filter((r) => r.mergedInto === ticket));
-  const groups = $derived(groupByProblem(merged, tenantOf, notes.oneDayMove));
-  const counted = $derived(groups.reduce((n, g) => n + g.reports.length, 0));
+  const rows = $derived(problemRows(merged, tenantOf, notes.oneDayMove));
   const tags = (g: { taggedAs: Record<string, number> }) =>
     Object.entries(g.taggedAs)
       .sort((a, b) => b[1] - a[1])
@@ -21,8 +20,8 @@
 
 <p class="sum">
   <strong>{merged.length}</strong> reports merged into #{ticket} ·
-  <strong>{groups.length}</strong>
-  {groups.length === 1 ? 'problem' : 'problems'}
+  <strong>{rows.length}</strong>
+  {rows.length === 1 ? 'problem' : 'problems'}
 </p>
 
 <table>
@@ -30,7 +29,7 @@
     <tr><th>problem</th><th>reports</th><th>tagged as</th><th>tenants</th><th>seen</th><th>ticket</th></tr>
   </thead>
   <tbody>
-    {#each groups as g (g.problem)}
+    {#each rows as g (g.problem)}
       <tr class:unfiled={!filed[g.problem]}>
         <td><code>{g.problem}</code></td>
         <td>{g.reports.length}</td>
@@ -43,19 +42,21 @@
       </tr>
     {/each}
   </tbody>
-  <tfoot>
-    <tr>
-      <td>all</td>
-      <td>{counted}</td>
-      <td colspan="4">{counted === merged.length ? 'every report counted once' : `${merged.length - counted} reports not counted`}</td>
-    </tr>
-  </tfoot>
 </table>
+
+{#each rows as g (g.problem)}
+  {#if g.filedUnder.length}
+    <p class="note">
+      {g.reports.length} <code>{g.problem}</code> reports are filed under <code>{g.filedUnder.join(', ')}</code> by tenant,
+      and counted there too, as the desk counts.
+    </p>
+  {/if}
+{/each}
 
 <style>
   .sum { font-size: 1.1rem; }
   .tags { color: var(--muted); font-size: 0.85em; }
-  tfoot td { color: var(--muted); font-size: 0.85em; }
+  .note { color: var(--muted); font-size: 0.85em; }
   .unfiled td { background: var(--warn-bg); }
   .unfiled td:last-child { color: var(--warn); font-weight: 600; }
 </style>

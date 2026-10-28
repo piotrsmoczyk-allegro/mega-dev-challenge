@@ -49,19 +49,21 @@ locale.
 
 These reports are not a swap. Tuesday shows as Monday. A client in Lisbon gets Tuesday and a
 client in Toronto gets Monday for the same meeting. An invite arrives before the booking was made.
-The desk read them as one-day moves (`desk-notes.json`), and #4471 still counted them under the
-tenant's cause. A day lost between time zones does not come from the order of day and month, so
-neither fix above closes these.
+The desk read them as one-day moves (`desk-notes.json`). They stay filed, and counted, under their
+tenant's cause, as the desk counts, and they have a ticket of their own too. A day lost between time
+zones does not come from the order of day and month, so neither fix above closes these.
 
 ## How a report is placed
 
-1. The desk read it as a one-day move: `one-day move`.
-2. Its tenant writes the day first and it came through booking-v3's form: `hint`.
-3. Its tenant writes the day first: `parser`.
-4. No tenant on file: `unplaced`. It has no ticket; read it before you file it.
+1. Its tenant writes the day first and it came through booking-v3's form: `hint`.
+2. Its tenant writes the day first: `parser`.
+3. No tenant on file: `unplaced`. It has no ticket; read it before you file it.
+4. The desk read it as a one-day move: it is also a `one-day move`, and stays counted where it is
+   filed.
 
-The rules run in `src/lib/kb/problems.ts`, on top of `causes.ts`. Intake's tag is shown, never
-used: it is a guess from the reporter's browser, and the tenant decides the cause.
+The rules run in `src/lib/kb/problems.ts`, on top of the desk's `causes.ts`, and count the way
+#4471's own table does. Intake's tag is shown, never used: it is a guess from the reporter's
+browser, and the tenant decides the cause.
 
 ## While the desk keeps working
 
