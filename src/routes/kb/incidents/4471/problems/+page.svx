@@ -1,0 +1,73 @@
+---
+layout: runbook
+title: '#4471 split: one ticket per problem'
+owner: support desk
+status: open
+reviewed: 2026-10-28
+signature: 'Piotr Smoczyk'
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/piotrsmoczyk-allegro/mega-dev-challenge';
+  const filed = {
+    parser: `${repo}/issues/1`,
+    hint: `${repo}/issues/2`,
+    'one-day move': `${repo}/issues/3`,
+  };
+</script>
+
+[#4471](/kb/incidents/4471) says: one issue, one fix queued. Rendered, its own table says more.
+Its reports hit more than one bug, and some of them are not a flipped date at all. This page
+splits #4471 by problem. Each problem has its own ticket.
+
+<Callout kind="warn">
+The fix queued in #4471 is for the parser. It does not fix the hint or the one-day move.
+</Callout>
+
+## The problems in #4471
+
+<ProblemTable ticket={4471} {filed} />
+
+## parser: day and month swap
+
+The shared parser reads every date month first. Our tenants write the day first, so a booking for
+7 April goes out as 4 July. This is the bug #4471 was opened for, and the fix queued there is for
+this row only.
+
+## hint: the booking-v3 form asks for the month first
+
+booking-v3 prints `MM/DD/YYYY` under its date field. On a day-first tenant, people type what the
+hint says, month first, and the form reads it the tenant's way, day first. The date flips, so it
+looks like the parser bug, but the parser fix does not touch it. The hint has to match the tenant's
+locale.
+
+## one-day move: the date moves by one day
+
+These reports are not a swap. Tuesday shows as Monday. A client in Lisbon gets Tuesday and a
+client in Toronto gets Monday for the same meeting. An invite arrives before the booking was made.
+The desk read them as one-day moves (`desk-notes.json`), and #4471 still counted them under the
+tenant's cause. A day lost between time zones does not come from the order of day and month, so
+neither fix above closes these.
+
+## How a report is placed
+
+1. The desk read it as a one-day move: `one-day move`.
+2. Its tenant writes the day first and it came through booking-v3's form: `hint`.
+3. Its tenant writes the day first: `parser`.
+4. No tenant on file: `unplaced`. It has no ticket; read it before you file it.
+
+The rules run in `src/lib/kb/problems.ts`, on top of `causes.ts`. Intake's tag is shown, never
+used: it is a guess from the reporter's browser, and the tenant decides the cause.
+
+## While the desk keeps working
+
+New reports still reach #4471 by subject ([decision 0001](/kb/decisions/0001-dedupe-by-subject)),
+and the subject does not tell these problems apart. The table above counts again on every render.
+Before you merge a new date report, place it with the steps above or the
+[triage explorer](/kb/triage/dedupe), and add it to its problem's ticket.
+
+<RenderStamp {signature} />
