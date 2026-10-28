@@ -1,0 +1,5 @@
+node_modules/
+.svelte-kit/
+build/
+# resolved URLs point at a private registry; versions are pinned in package.json
+package-lock.json
