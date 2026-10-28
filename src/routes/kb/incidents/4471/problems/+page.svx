@@ -14,9 +14,9 @@ signature: 'Piotr Smoczyk'
 
   const repo = 'https://github.com/piotrsmoczyk-allegro/mega-dev-challenge';
   const filed = {
-    parser: `${repo}/issues/1`,
-    hint: `${repo}/issues/2`,
-    'one-day move': `${repo}/issues/3`,
+    parser: { url: `${repo}/issues/1`, state: 'closed · fixed' },
+    hint: { url: `${repo}/issues/2`, state: "closed · won't fix" },
+    'one-day move': { url: `${repo}/issues/3`, state: 'open' },
   };
 </script>
 
@@ -25,7 +25,8 @@ Its reports hit more than one bug, and some of them are not a flipped date at al
 splits #4471 by problem. Each problem has its own ticket.
 
 <Callout kind="warn">
-The fix queued in #4471 is for the parser. It does not fix the hint or the one-day move.
+Engineering closed #4471 on 5 October: the parser is fixed, and the hint will not be fixed because
+the booking-v3 form is retired. Neither change touches the one-day move. Its ticket stays open.
 </Callout>
 
 ## The problems in #4471
@@ -35,15 +36,15 @@ The fix queued in #4471 is for the parser. It does not fix the hint or the one-d
 ## parser: day and month swap
 
 The shared parser reads every date month first. Our tenants write the day first, so a booking for
-7 April goes out as 4 July. This is the bug #4471 was opened for, and the fix queued there is for
-this row only.
+7 April goes out as 4 July. This is the bug #4471 was opened for. Engineering fixed it with
+`fix(dates): parse dd/mm for eu locales`, so its ticket is closed as completed.
 
 ## hint: the booking-v3 form asks for the month first
 
 booking-v3 prints `MM/DD/YYYY` under its date field. On a day-first tenant, people type what the
 hint says, month first, and the form reads it the tenant's way, day first. The date flips, so it
-looks like the parser bug, but the parser fix does not touch it. The hint has to match the tenant's
-locale.
+looks like the parser bug, but the parser fix does not touch it. Engineering will not fix the hint:
+the booking-v3 form is retired. Its ticket is closed as not planned.
 
 ## one-day move: the date moves by one day
 
@@ -51,7 +52,8 @@ These reports are not a swap. Tuesday shows as Monday. A client in Lisbon gets T
 client in Toronto gets Monday for the same meeting. An invite arrives before the booking was made.
 The desk read them as one-day moves (`desk-notes.json`). They stay filed, and counted, under their
 tenant's cause, as the desk counts, and they have a ticket of their own too. A day lost between time
-zones does not come from the order of day and month, so neither fix above closes these.
+zones does not come from the order of day and month: the parser fix and the retired form leave it
+as it is, so this ticket stays open.
 
 ## How a report is placed
 
@@ -67,9 +69,10 @@ browser, and the tenant decides the cause.
 
 ## While the desk keeps working
 
-New reports still reach #4471 by subject ([decision 0001](/kb/decisions/0001-dedupe-by-subject)),
-and the subject does not tell these problems apart. The table above counts again on every render.
-Before you merge a new date report, place it with the steps above or the
-[triage explorer](/kb/triage/dedupe), and add it to its problem's ticket.
+#4471 is closed. By subject ([decision 0001](/kb/decisions/0001-dedupe-by-subject)), a new date
+report now opens a new ticket or joins any open one with the same subject, and the subject does not
+tell these problems apart. The table above counts again on every render. Before you file a new date
+report, place it with the steps above or the [triage explorer](/kb/triage/dedupe). A one-day move
+goes to its open ticket.
 
 <RenderStamp {signature} />

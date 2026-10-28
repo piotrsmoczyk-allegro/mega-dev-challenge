@@ -5,8 +5,9 @@
   import { problemRows } from '#lib/kb/problems';
   import { tenantOf } from '#lib/kb/locales';
 
-  // `filed`: problem → URL of the ticket filed for it. A problem with no entry has no ticket yet.
-  let { ticket, filed = {} }: { ticket: number; filed?: Record<string, string> } = $props();
+  // `filed`: problem → the ticket filed for it (URL) and its state, in words. A problem with no entry
+  // has no ticket yet.
+  let { ticket, filed = {} }: { ticket: number; filed?: Record<string, { url: string; state: string }> } = $props();
 
   const merged = $derived(uniqueById(reports as Report[]).filter((r) => r.mergedInto === ticket));
   const rows = $derived(problemRows(merged, tenantOf, notes.oneDayMove));
@@ -37,7 +38,10 @@
         <td>{g.tenants}</td>
         <td>{g.firstSeen} → {g.lastSeen}</td>
         <td>
-          {#if filed[g.problem]}<a href={filed[g.problem]}>{label(filed[g.problem])}</a>{:else}no ticket yet{/if}
+          {#if filed[g.problem]}
+            <a href={filed[g.problem].url}>{label(filed[g.problem].url)}</a>
+            <span class="state">{filed[g.problem].state}</span>
+          {:else}no ticket yet{/if}
         </td>
       </tr>
     {/each}
@@ -56,6 +60,7 @@
 <style>
   .sum { font-size: 1.1rem; }
   .tags { color: var(--muted); font-size: 0.85em; }
+  .state { display: block; color: var(--muted); font-size: 0.85em; }
   .note { color: var(--muted); font-size: 0.85em; }
   .unfiled td { background: var(--warn-bg); }
   .unfiled td:last-child { color: var(--warn); font-weight: 600; }
